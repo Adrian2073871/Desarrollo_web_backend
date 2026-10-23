@@ -51,6 +51,9 @@ public class AlumnoService {
         buscar(id);
         repository.eliminarPorId(id);
     }
+<<<<<<< HEAD
     
     
+=======
+>>>>>>> master
 }
