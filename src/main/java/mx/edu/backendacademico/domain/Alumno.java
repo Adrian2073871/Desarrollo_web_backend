@@ -32,11 +32,6 @@ public record Alumno(Long id, String matricula, String nombre, String correo, Es
         // 3. Se obtiene otro valor; las referencias al valor anterior no cambian.
         return new Alumno(id, matricula, nombre, correo, EstatusAlumno.BAJA);
     }
-<<<<<<< HEAD
-
-=======
-    /*
->>>>>>> master
     public Alumno reactivar(){
         return new Alumno(id, matricula, nombre, correo, EstatusAlumno.ACTIVO);
     }
@@ -59,9 +54,4 @@ public record Alumno(Long id, String matricula, String nombre, String correo, Es
         // Usar Objects.hash para generar un hash consistente
         return Objects.hash(id);
     }
-<<<<<<< HEAD
-
-=======
-*/
->>>>>>> master
 }
