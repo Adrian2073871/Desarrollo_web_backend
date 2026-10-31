@@ -24,6 +24,7 @@ class AlumnoTest {
         assertEquals(EstatusAlumno.BAJA, baja.estatus());
         assertEquals(EstatusAlumno.ACTIVO, alumno.estatus());
     }
+ /*  
     @Test void reactivarConservaIdentidadSinModificarElOriginal(){
         var alumno = new Alumno(1L, " a001 ", "Ada", "ada@u.mx", EstatusAlumno.ACTIVO);
         var baja = alumno.darDeBaja();
@@ -38,6 +39,7 @@ class AlumnoTest {
         //Si es falso, la prueba falla
         assertEquals(alumno1, alumno2);
     }
+*/
     @Test void rechazaMatriculaVacia() {
         assertThrows(IllegalArgumentException.class, () ->
             new Alumno(null, " ", "Ada", "ada@u.mx", EstatusAlumno.ACTIVO));

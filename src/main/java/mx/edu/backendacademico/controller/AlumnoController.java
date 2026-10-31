@@ -22,8 +22,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestParam;
-import mx.edu.backendacademico.domain.EstatusAlumno;
 /**
  *
  * @author Adrian Briseno
@@ -36,14 +34,7 @@ public class AlumnoController {
 
     // GET consulta sin solicitar cambios de estado de negocio.
     @GetMapping
-    public List<AlumnoResponse> listar(@RequestParam(required = false) EstatusAlumno estatus) {
-         var alumnos = service.listar().stream();
-
-        if (estatus != null) {
-            alumnos = alumnos.filter(alumno -> alumno.estatus() == estatus);
-        }
-        return alumnos.map(AlumnoMapper::toResponse).toList();
-    }
+    public List<AlumnoResponse> listar() { return service.listar().stream().map(AlumnoMapper::toResponse).toList(); }
 
     // GET consulta sin solicitar cambios de estado de negocio.
     @GetMapping("/{id}")
