@@ -3,6 +3,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package mx.edu.backendacademico.controller;
+// Traduce HTTP a llamadas de aplicación y construye respuestas mediante DTO.
+
+import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import mx.edu.backendacademico.dto.ActualizarAlumnoRequest;
@@ -48,14 +51,14 @@ public class AlumnoController {
 
     // El servicio asigna identidad; ResponseEntity publica 201 y Location.
     @PostMapping
-    public ResponseEntity<AlumnoResponse> crear(@RequestBody CrearAlumnoRequest request) {
+    public ResponseEntity<AlumnoResponse> crear(@RequestBody @Valid CrearAlumnoRequest request) {
         var creado = service.crear(request.matricula(), request.nombre(), request.correo());
         return ResponseEntity.created(URI.create("/api/v1/alumnos/" + creado.id())).body(AlumnoMapper.toResponse(creado));
     }
 
     // PUT sustituye todos los campos de la representación editable.
     @PutMapping("/{id}")
-    public AlumnoResponse actualizar(@PathVariable Long id, @RequestBody ActualizarAlumnoRequest request) {
+    public AlumnoResponse actualizar(@PathVariable Long id, @RequestBody @Valid ActualizarAlumnoRequest request) {
         return AlumnoMapper.toResponse(service.actualizar(id, request.nombre(), request.correo()));
     }
 

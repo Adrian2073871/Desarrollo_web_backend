@@ -45,6 +45,6 @@ class AlumnoTest {
 
     @Test void materiaRechazaCreditosNoPositivos() {
         assertThrows(IllegalArgumentException.class, () ->
-                new Materia(null, "M1", "Análisis", 0));
+            new Materia(null, "M1", "Análisis", 0));
     }
 }
