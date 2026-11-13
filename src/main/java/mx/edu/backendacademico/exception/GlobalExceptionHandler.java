@@ -1,10 +1,5 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package mx.edu.backendacademico.exception;
 
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
@@ -14,10 +9,8 @@ import org.springframework.http.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
-/**
- *
- * @author Adrian Briseno
- */
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
@@ -42,6 +35,30 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             .map(e -> new CampoInvalido(e.getField(), e.getDefaultMessage())).toList();
         detalle.setProperty("campos", campos);
         return handleExceptionInternal(ex, detalle, headers, status, request);
+    }
+
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    ProblemDetail integridad(org.springframework.dao.DataIntegrityViolationException ex) {
+        Throwable causa = ex;
+        while (causa != null) {
+            if (causa instanceof org.hibernate.exception.ConstraintViolationException restriccion) {
+                String nombre = restriccion.getConstraintName();
+                if ("fk_inscripcion_alumno".equalsIgnoreCase(nombre) ||
+                    "fk_inscripcion_materia".equalsIgnoreCase(nombre)) {
+                    return problema(HttpStatus.CONFLICT, "RECURSO_REFERENCIADO",
+                        "El recurso participa en una inscripción y no puede eliminarse");
+                }
+            }
+            causa = causa.getCause();
+        }
+        return inesperado(ex);
+    }
+
+    @ExceptionHandler(OperacionAcademicaException.class)
+    ProblemDetail academica(OperacionAcademicaException ex) {
+        var status = ex.getCodigo().equals("MATERIA_NO_ENCONTRADA")
+            ? HttpStatus.NOT_FOUND : HttpStatus.CONFLICT;
+        return problema(status, ex.getCodigo(), ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
