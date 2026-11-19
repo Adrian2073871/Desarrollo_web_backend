@@ -45,10 +45,27 @@ public class SecurityConfig {
 
     @Bean
     UserDetailsService users(PasswordEncoder encoder) {
-        // Cuentas públicas de laboratorio; no contienen credenciales reales.
+        // Cuentas de laboratorio.
         return new InMemoryUserDetailsManager(
-            User.withUsername("alumno").password(encoder.encode("alumno123")).roles("ALUMNO").build(),
-            User.withUsername("docente").password(encoder.encode("docente123")).roles("DOCENTE").build(),
-            User.withUsername("admin").password(encoder.encode("admin123")).roles("ADMIN").build());
+            User.withUsername("S1")
+                .password(encoder.encode("alumno123"))
+                .roles("ALUMNO")
+                .build(),
+
+            User.withUsername("S2")
+                .password(encoder.encode("alumno123"))
+                .roles("ALUMNO")
+                .build(),
+
+            User.withUsername("docente")
+                .password(encoder.encode("docente123"))
+                .roles("DOCENTE")
+                .build(),
+
+            User.withUsername("admin")
+                .password(encoder.encode("admin123"))
+                .roles("ADMIN")
+                .build()
+        );
     }
 }

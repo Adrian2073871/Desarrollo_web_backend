@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import mx.edu.backendacademico.dto.ActualizarAlumnoRequest;
+import mx.edu.backendacademico.domain.Alumno;
 import mx.edu.backendacademico.dto.AlumnoMapper;
 import mx.edu.backendacademico.dto.AlumnoResponse;
 import mx.edu.backendacademico.dto.CrearAlumnoRequest;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.security.Principal;
+import org.springframework.security.core.Authentication;
 /**
  *
  * @author Adrian Briseno
@@ -31,6 +34,34 @@ import org.springframework.web.bind.annotation.RestController;
 public class AlumnoController {
     private final AlumnoService service;
     public AlumnoController(AlumnoService service) { this.service = service; }
+    
+    
+    @GetMapping("/mi-expediente")
+    public Alumno miExpediente(Principal principal) {
+        String matricula = principal.getName();
+
+        return service.buscarPorMatricula(matricula);
+    }
+    @GetMapping("/{matricula}/expediente")
+    public AlumnoResponse consultarExpediente(
+            @PathVariable String matricula,
+            Authentication authentication) {
+
+        String matriculaAutenticada = authentication.getName();
+
+        boolean esAdministrador = authentication.getAuthorities()
+                .stream()
+                .anyMatch(autoridad ->
+                        autoridad.getAuthority().equals("ROLE_ADMIN"));
+
+        Alumno alumno = service.buscarExpediente(
+                matricula,
+                matriculaAutenticada,
+                esAdministrador
+        );
+
+        return AlumnoMapper.toResponse(alumno);
+    }
 
     // GET consulta sin solicitar cambios de estado de negocio.
     @GetMapping

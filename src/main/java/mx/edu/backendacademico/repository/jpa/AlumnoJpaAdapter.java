@@ -27,6 +27,11 @@ public class AlumnoJpaAdapter implements AlumnoRepository {
     public AlumnoJpaAdapter(AlumnoSpringDataRepository repository) {
         this.repository = repository;
     }
+    @Override
+    public Optional<Alumno> buscarPorMatricula(String matricula) {
+        return repository.findByMatriculaIgnoreCase(matricula.strip())
+            .map(AlumnoEntity::toDomain);
+    }
 
     @Override
     @Transactional
