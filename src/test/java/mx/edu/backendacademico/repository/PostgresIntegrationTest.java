@@ -21,7 +21,8 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-
+import org.springframework.dao.DataIntegrityViolationException;
+import org.hibernate.exception.ConstraintViolationException;
 @SpringBootTest
 @Testcontainers
 class PostgresIntegrationTest {
@@ -52,5 +53,54 @@ class PostgresIntegrationTest {
         assertEquals("SIN_CUPO", llena.getCodigo());
         // Las llamadas anteriores pasaron por el proxy real y terminaron su transacción.
         assertEquals(1, inscripciones.countByMateriaId(materia.getId()));
+    }
+    
+    @Test void postgresRechazaMatriculasDuplicadas() {
+
+        var primero = new AlumnoEntity(
+            new Alumno(
+                null,
+                "U09-UNICO",
+                "Ada Lovelace",
+                "ada@u.mx",
+                EstatusAlumno.ACTIVO
+            )
+        );
+
+        // Primer registro: debe guardarse correctamente.
+        alumnos.saveAndFlush(primero);
+
+        var duplicado = new AlumnoEntity(
+            new Alumno(
+                null,
+                "U09-UNICO",
+                "Grace Hopper",
+                "grace@u.mx",
+                EstatusAlumno.ACTIVO
+            )
+        );
+
+        // Segundo registro: PostgreSQL debe rechazarlo.
+        var excepcion = assertThrows(
+            DataIntegrityViolationException.class,
+            () -> alumnos.saveAndFlush(duplicado)
+        );
+
+        // Comprobamos que el error corresponde a la restricción esperada.
+        Throwable causa = excepcion;
+
+        while (causa != null &&
+               !(causa instanceof ConstraintViolationException)) {
+            causa = causa.getCause();
+        }
+
+        assertNotNull(causa);
+
+        var restriccion = (ConstraintViolationException) causa;
+
+        assertEquals(
+            "uk_alumnos_matricula",
+            restriccion.getConstraintName()
+        );
     }
 }
