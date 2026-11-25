@@ -10,7 +10,7 @@ import mx.edu.backendacademico.exception.MatriculaDuplicadaException;
 import mx.edu.backendacademico.repository.AlumnoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.access.AccessDeniedException;
+
 @Service
 @Transactional(readOnly = true)
 public class AlumnoService {
@@ -24,20 +24,10 @@ public class AlumnoService {
         // Devuelve una instantánea de los alumnos desde el adaptador activo.
         return repository.buscarTodos();
     }
-    public Alumno buscarExpediente(String matriculaSolicitada,String matriculaAutenticada,boolean esAdministrador) {
-        if (!esAdministrador && !matriculaSolicitada.equalsIgnoreCase(matriculaAutenticada)) {
-            throw new AccessDeniedException("No tienes permiso para consultar este expediente");
-        }
-
-        return buscarPorMatricula(matriculaSolicitada);
-    }
 
     public Alumno buscar(Long id) {
         // La ausencia se interpreta como un error de aplicación explícito.
         return repository.buscarPorId(id).orElseThrow(() -> new AlumnoNoEncontradoException(id));
-    }
-    public Alumno buscarPorMatricula(String matricula) {
-        return repository.buscarPorMatricula(matricula).orElseThrow(() -> new AlumnoNoEncontradoException(matricula));
     }
 
     @Transactional

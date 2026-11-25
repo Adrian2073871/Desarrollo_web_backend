@@ -24,17 +24,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ProblemDetail conflicto(MatriculaDuplicadaException ex) {
         return problema(HttpStatus.CONFLICT, "MATRICULA_DUPLICADA", ex.getMessage());
     }
-    
-    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
-    ProblemDetail accesoDenegado(
-            org.springframework.security.access.AccessDeniedException ex) {
-
-        return problema(
-            HttpStatus.FORBIDDEN,
-            "ACCESO_DENEGADO",
-            ex.getMessage()
-        );
-    }
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(

@@ -39,7 +39,7 @@ class SeguridadTest {
 
     @Test void alumnoNoPuedeCrearAunqueTengaCsrf() throws Exception {
         // Token correcto: el 403 de esta prueba se debe al rol.
-        mvc.perform(post("/api/v1/alumnos").with(httpBasic("S1", "alumno123"))
+        mvc.perform(post("/api/v1/alumnos").with(httpBasic("alumno", "alumno123"))
             .with(csrf()).contentType(MediaType.APPLICATION_JSON).content(DATOS))
             .andExpect(status().isForbidden());
     }

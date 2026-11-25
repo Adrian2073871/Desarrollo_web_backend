@@ -17,13 +17,6 @@ import org.springframework.context.annotation.Profile;
 public class AlumnoRepositoryEnMemoria implements AlumnoRepository {
     private final Map<Long, Alumno> datos = new LinkedHashMap<>();
     private long secuencia;
-    
-    @Override
-    public synchronized Optional<Alumno> buscarPorMatricula(String matricula) {
-        return datos.values().stream()
-            .filter(a -> a.matricula().equalsIgnoreCase(matricula.strip()))
-            .findFirst();
-    }
 
     @Override
     public synchronized Alumno guardar(Alumno alumno) {
