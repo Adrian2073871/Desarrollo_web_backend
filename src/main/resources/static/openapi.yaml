@@ -50,6 +50,19 @@ paths:
       description: Requiere DOCENTE o ADMIN y un token CSRF de la misma sesión.
       parameters:
         - {$ref: '#/components/parameters/Csrf'}
+        - name: Idempotency-Key
+          in: header
+          required: false
+          description: >
+            Clave que identifica una operación de creación.
+            Si se repite con el mismo contenido, se devuelve
+            la respuesta original sin crear otro alumno.
+            Si se repite con contenido diferente, devuelve 409.
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 100
+            pattern: '\S'
       requestBody:
         required: true
         content:
@@ -57,7 +70,9 @@ paths:
             schema: {$ref: '#/components/schemas/CrearAlumno'}
       responses:
         '201':
-          description: Alumno creado
+          description: >
+            Alumno creado correctamente o respuesta original
+            recuperada mediante una clave de idempotencia.
           headers:
             Location:
               description: URI de consulta del alumno creado

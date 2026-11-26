@@ -1,7 +1,7 @@
 # Cuentas conocidas de laboratorio. Mantén las cookies habilitadas en HTTP Client.
 # 1. Ejecuta GET /csrf como docente. 2. Copia token a csrf. 3. Conserva JSESSIONID.
 @csrf = COPIA_EL_TOKEN_DE_LA_RESPUESTA
-
+@idempotencia = prueba-idempotencia-001
 ### Saludo público
 GET http://localhost:8080/api/v1/saludo
 

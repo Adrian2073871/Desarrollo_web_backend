@@ -23,12 +23,13 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
+import mx.edu.backendacademico.service.IdempotenciaAlumnoService;
 @WebMvcTest(AlumnoController.class)
 @Import(SecurityConfig.class)
 class SeguridadTest {
     @Autowired MockMvc mvc;
     @MockitoBean AlumnoService service;
+    @MockitoBean IdempotenciaAlumnoService idempotencia;
     private static final String DATOS = """
         {"matricula":"S1","nombre":"Ada","correo":"ada@u.mx"}
         """;
