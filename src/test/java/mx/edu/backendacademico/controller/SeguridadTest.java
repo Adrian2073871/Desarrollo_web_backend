@@ -23,7 +23,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 @WebMvcTest(AlumnoController.class)
 @Import(SecurityConfig.class)
 class SeguridadTest {
@@ -57,5 +58,76 @@ class SeguridadTest {
         mvc.perform(post("/api/v1/alumnos").with(httpBasic("docente", "docente123"))
             .with(csrf()).contentType(MediaType.APPLICATION_JSON).content(DATOS))
             .andExpect(status().isCreated());
+    }
+    @Test void alumnoPuedeConsultarSuPropioRegistro() throws Exception {
+        when(service.buscar(1L)).thenReturn(
+            new Alumno(
+                1L,
+                "ALUMNO",
+                "Alumno Propietario",
+                "alumno@u.mx",
+                EstatusAlumno.ACTIVO
+            )
+        );
+
+        mvc.perform(get("/api/v1/alumnos/1")
+            .with(httpBasic("alumno", "alumno123")))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.matricula").value("ALUMNO"));
+    }
+    
+    @Test void alumnoNoPuedeConsultarRegistroAjeno() throws Exception {
+        when(service.buscar(2L)).thenReturn(
+            new Alumno(
+                2L,
+                "AJENO",
+                "Otro Alumno",
+                "otro@u.mx",
+                EstatusAlumno.ACTIVO
+            )
+        );
+
+        mvc.perform(get("/api/v1/alumnos/2")
+            .with(httpBasic("alumno", "alumno123")))
+            .andExpect(status().isForbidden());
+    }
+    
+    @Test void administradorPuedeConsultarCualquierAlumno() throws Exception {
+        when(service.buscar(2L)).thenReturn(
+            new Alumno(
+                2L,
+                "AJENO",
+                "Otro Alumno",
+                "otro@u.mx",
+                EstatusAlumno.ACTIVO
+            )
+        );
+
+        mvc.perform(get("/api/v1/alumnos/2")
+            .with(httpBasic("admin", "admin123")))
+            .andExpect(status().isOk());
+    }
+    
+    @Test void docentePuedeConsultarCualquierAlumno() throws Exception {
+        when(service.buscar(2L)).thenReturn(
+            new Alumno(
+                2L,
+                "AJENO",
+                "Otro Alumno",
+                "otro@u.mx",
+                EstatusAlumno.ACTIVO
+            )
+        );
+
+        mvc.perform(get("/api/v1/alumnos/2")
+            .with(httpBasic("docente", "docente123")))
+            .andExpect(status().isOk());
+    }
+    @Test void alumnoNoPuedeListarTodosLosRegistros() throws Exception {
+        mvc.perform(get("/api/v1/alumnos")
+            .with(httpBasic("alumno", "alumno123")))
+            .andExpect(status().isForbidden());
+
+        verifyNoInteractions(service);
     }
 }

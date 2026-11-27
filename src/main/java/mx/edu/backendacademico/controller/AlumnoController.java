@@ -22,6 +22,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.Locale;
+import org.springframework.security.core.Authentication;
+import org.springframework.http.HttpStatus;
 /**
  *
  * @author Adrian Briseno
@@ -38,8 +41,33 @@ public class AlumnoController {
 
     // GET consulta sin solicitar cambios de estado de negocio.
     @GetMapping("/{id}")
-    public AlumnoResponse buscar(@PathVariable Long id) { return AlumnoMapper.toResponse(service.buscar(id)); }
+    public ResponseEntity<AlumnoResponse> buscar(
+            @PathVariable Long id,
+            Authentication autenticacion) {
 
+        var alumno = service.buscar(id);
+
+        boolean accesoGeneral = autenticacion.getAuthorities()
+            .stream()
+            .anyMatch(autoridad ->
+                autoridad.getAuthority().equals("ROLE_ADMIN") ||
+                autoridad.getAuthority().equals("ROLE_DOCENTE")
+            );
+
+        String matriculaUsuario = autenticacion.getName()
+            .toUpperCase(Locale.ROOT);
+
+        boolean propietario = alumno.matricula()
+            .equals(matriculaUsuario);
+
+        if (!accesoGeneral && !propietario) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        return ResponseEntity.ok(
+            AlumnoMapper.toResponse(alumno)
+        );
+    }
     // El servicio asigna identidad; ResponseEntity publica 201 y Location.
     @PostMapping
     public ResponseEntity<AlumnoResponse> crear(@RequestBody @Valid CrearAlumnoRequest request) {
