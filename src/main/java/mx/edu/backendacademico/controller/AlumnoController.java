@@ -22,9 +22,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import java.security.Principal;
-import mx.edu.backendacademico.service.IdempotenciaAlumnoService;
-import org.springframework.web.bind.annotation.RequestHeader;
 /**
  *
  * @author Adrian Briseno
@@ -33,8 +30,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 @RequestMapping("/api/v1/alumnos")
 public class AlumnoController {
     private final AlumnoService service;
-    private final IdempotenciaAlumnoService idempotencia;
-    public AlumnoController(AlumnoService service, IdempotenciaAlumnoService idempotencia) { this.service = service; this.idempotencia = idempotencia;}
+    public AlumnoController(AlumnoService service) { this.service = service; }
 
     // GET consulta sin solicitar cambios de estado de negocio.
     @GetMapping
@@ -46,35 +42,9 @@ public class AlumnoController {
 
     // El servicio asigna identidad; ResponseEntity publica 201 y Location.
     @PostMapping
-    public ResponseEntity<AlumnoResponse> crear(
-            @RequestBody @Valid CrearAlumnoRequest request,
-
-            @RequestHeader(
-                value = "Idempotency-Key",
-                required = false
-            ) String clave,
-
-            Principal principal) {
-
-        var creado = clave == null
-
-            ? service.crear(
-                request.matricula(),
-                request.nombre(),
-                request.correo()
-            )
-
-            : idempotencia.crear(
-                principal.getName(),
-                clave,
-                request.matricula(),
-                request.nombre(),
-                request.correo()
-            );
-
-        return ResponseEntity.created(
-            URI.create("/api/v1/alumnos/" + creado.id())
-        ).body(AlumnoMapper.toResponse(creado));
+    public ResponseEntity<AlumnoResponse> crear(@RequestBody @Valid CrearAlumnoRequest request) {
+        var creado = service.crear(request.matricula(), request.nombre(), request.correo());
+        return ResponseEntity.created(URI.create("/api/v1/alumnos/" + creado.id())).body(AlumnoMapper.toResponse(creado));
     }
 
     // PUT sustituye todos los campos de la representación editable.

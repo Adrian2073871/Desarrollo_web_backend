@@ -24,25 +24,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ProblemDetail conflicto(MatriculaDuplicadaException ex) {
         return problema(HttpStatus.CONFLICT, "MATRICULA_DUPLICADA", ex.getMessage());
     }
-    @ExceptionHandler(ClaveIdempotenciaReutilizadaException.class)
-    ProblemDetail claveIdempotenciaReutilizada(
-            ClaveIdempotenciaReutilizadaException ex) {
-
-        return problema(
-            HttpStatus.CONFLICT,
-            "CLAVE_IDEMPOTENCIA_REUTILIZADA",
-            ex.getMessage()
-        );
-    }
-    @ExceptionHandler(ClaveIdempotenciaInvalidaException.class)
-    ProblemDetail claveIdempotenciaInvalida(ClaveIdempotenciaInvalidaException ex) {
-
-        return problema(
-            HttpStatus.BAD_REQUEST,
-            "CLAVE_IDEMPOTENCIA_INVALIDA",
-            ex.getMessage()
-        );
-    }
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
